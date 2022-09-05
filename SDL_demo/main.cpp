@@ -25,9 +25,8 @@
 
 
 #define ITER 4
-
-#define SCALE 10
-#define N 64
+#define SCALE 5
+#define N 128
 #define SIZE SCALE*N
 
 class fluid {
@@ -106,6 +105,8 @@ public:
 		diffuse(0, s, density, diff, dt);
 		advect(0, density, s, Vx, Vy, dt);
 
+
+
 		DisplaySimulation();
 	
 	}
@@ -127,14 +128,17 @@ public:
 				
 
 				
-				SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-				SDL_SetRenderDrawColor(r, 255, 255, 255, opacity);
+				//SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+				//SDL_SetRenderDrawColor(r, 255, 255, 255, opacity);
+
+				SDL_SetRenderDrawColor(r, opacity, opacity, opacity, SDL_ALPHA_OPAQUE);
+
 				// create a black square
 				SDL_Rect rect = { i* SCALE, j* SCALE, SCALE, SCALE }; // x, y, width, height
 				//Uint32 color = SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00);
 				//SDL_FillRect(screenSurface, &rect, color);
 				SDL_RenderFillRect(r, &rect);
-				SDL_RenderDrawRect(r, &rect);
+				//SDL_RenderDrawRect(r, &rect);
 				//SDL_RenderPresent(r);
 			}
 		}
@@ -172,6 +176,13 @@ private:
 
 
 	int locateIndex(int x, int y){
+	
+		if (x >= N) { x = N - 1; }
+		if (x <= 0) { x = 0; }
+		if (y >= N) { y = N - 1; }
+		if (y <= 0) { y = 0; }
+		
+
 		return x + y * N;
 	}
 
@@ -302,22 +313,20 @@ private:
 			}
 	
 
-		x[locateIndex(0, 0)] = 0.33f * (x[locateIndex(1, 0)]
-			+ x[locateIndex(0, 1)]
-			+ x[locateIndex(0, 0)]);
+		x[locateIndex(0, 0)] = 0.5f * (x[locateIndex(1, 0)]
+			+ x[locateIndex(0, 1)]);
 
-		x[locateIndex(0, N - 1)] = 0.33f * (x[locateIndex(1, N - 1)]
+		x[locateIndex(0, N - 1)] = 0.5f * (x[locateIndex(1, N - 1)]
 			+ x[locateIndex(0, N - 2)]
-			+ x[locateIndex(0, N - 1)]);
+			);
 
 
-		x[locateIndex(N - 1, 0)] = 0.33f * (x[locateIndex(N - 2, 0)]
+		x[locateIndex(N - 1, 0)] = 0.5f * (x[locateIndex(N - 2, 0)]
 			+ x[locateIndex(N - 1, 1)]
-			+ x[locateIndex(N - 1, 0)]);
+			);
 
-		x[locateIndex(N - 1, N - 1)] = 0.33f * (x[locateIndex(N - 2, N - 1)]
-			+ x[locateIndex(N - 1, N - 2)]
-			+ x[locateIndex(N - 1, N - 1)]);
+		x[locateIndex(N - 1, N - 1)] = 0.5f * (x[locateIndex(N - 2, N - 1)]
+			+ x[locateIndex(N - 1, N - 2)]);
 
 	}
 
@@ -347,13 +356,15 @@ int main(int argc, char *argv[])
 		//Texture t{ "assets/a.JPEG", r };
 
 		float  dt = 0.1;
-		float  diff = 0;
-		float  visc = 0;
+		float  diff = 0.2;
+		float  visc = 0.5;
 
 		fluid f (dt,diff,visc,r);
 
 
 		SDL_Event e;
+
+		//SDL_SetRelativeMouseMode(SDL_TRUE);
 		while (!done) {
 
 			
@@ -375,10 +386,7 @@ int main(int argc, char *argv[])
 			SDL_RenderDrawLine(r, 340, 240, 320, 200);*/
 			SDL_RenderPresent(r);
 
-
-
-			
-
+		
 			while (SDL_PollEvent(&e)) {
 				switch (e.type)
 				{
@@ -386,23 +394,29 @@ int main(int argc, char *argv[])
 				case SDL_MOUSEBUTTONUP:
 					if (e.button.button == SDL_BUTTON_LEFT)
 						leftMouseButtonDown = false;
+						
 					break;
 				case SDL_MOUSEBUTTONDOWN:
 					if (e.button.button == SDL_BUTTON_LEFT)
 						leftMouseButtonDown = true;
-				case SDL_MOUSEMOTION:
+
+					int mouseX = e.motion.x;
+					int mouseY = e.motion.y;
+
+					std::cout << "Pulso" << std::endl;
+
+
+
+					f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 100);
+					f.AddVelocity(mouseX / SCALE, mouseY / SCALE, 0.1, 0.2);
+					break;
+				/*case SDL_MOUSEMOTION:
 					if (leftMouseButtonDown)
 					{
-						int mouseX = e.motion.x/SCALE;
-						int mouseY = e.motion.y/SCALE;
-
-						std::cout << "Pulso" << std::endl;
-
-						f.AddIntensity(mouseX, mouseY, 100);
-						f.AddVelocity(mouseX, mouseY, 20,20);
+						
 					}
-					break;
-				default: break;
+					break;*/
+				
 				}
 			}	
 		}
