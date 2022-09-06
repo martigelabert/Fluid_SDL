@@ -131,6 +131,10 @@ public:
 				//SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 				//SDL_SetRenderDrawColor(r, 255, 255, 255, opacity);
 
+				//NO FUNCIONA POR ESTO!!!!
+				if (opacity > 255) { opacity = 255; }
+				if (opacity < 0) { opacity = 0; }
+
 				SDL_SetRenderDrawColor(r, opacity, opacity, opacity, SDL_ALPHA_OPAQUE);
 
 				// create a black square
@@ -351,19 +355,21 @@ int main(int argc, char *argv[])
 	if (w && r) {
 		bool done = false;
 		bool leftMouseButtonDown = false;
+		bool initialized = false;
 		SDL_RenderPresent(r);
 
 		//Texture t{ "assets/a.JPEG", r };
 
 		float  dt = 0.1;
 		float  diff = 0.2;
-		float  visc = 0.5;
+		float  visc = 0.1;
 
 		fluid f (dt,diff,visc,r);
 
 
 		SDL_Event e;
 
+		int tempx, tempy;
 		//SDL_SetRelativeMouseMode(SDL_TRUE);
 		while (!done) {
 
@@ -386,36 +392,68 @@ int main(int argc, char *argv[])
 			SDL_RenderDrawLine(r, 340, 240, 320, 200);*/
 			SDL_RenderPresent(r);
 
-		
+			
 			while (SDL_PollEvent(&e)) {
 				switch (e.type)
 				{
 				case SDL_QUIT: done = true; break;
 				case SDL_MOUSEBUTTONUP:
-					if (e.button.button == SDL_BUTTON_LEFT)
+					if (e.button.button == SDL_BUTTON_LEFT) {
 						leftMouseButtonDown = false;
+						initialized = false;
+					}
+					//Release tempx and tempy (nullp)
+					int tempx, tempy;
 						
 					break;
 				case SDL_MOUSEBUTTONDOWN:
-					if (e.button.button == SDL_BUTTON_LEFT)
+					if (e.button.button == SDL_BUTTON_LEFT) {
 						leftMouseButtonDown = true;
+					}
+					
 
-					int mouseX = e.motion.x;
-					int mouseY = e.motion.y;
-
-					std::cout << "Pulso" << std::endl;
-
-
-
-					f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 100);
-					f.AddVelocity(mouseX / SCALE, mouseY / SCALE, 0.1, 0.2);
 					break;
-				/*case SDL_MOUSEMOTION:
+				case SDL_MOUSEMOTION:
 					if (leftMouseButtonDown)
 					{
+						if (!initialized) {
+							initialized = true;
+							tempx= e.motion.x;
+							tempy = e.motion.y;
+
+							/*
+							int mouseX = e.motion.x;
+							int mouseY = e.motion.y;
+
+
+							std::cout << "Pulso" << std::endl;
+
+							f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 100);
+							f.AddVelocity(mouseX / SCALE, mouseY / SCALE, 0.1, 0.2);*/
+
+						}
+						else {
+							
+							int mouseX = e.motion.x;
+							int mouseY = e.motion.y;
+
+							int dirx = mouseX - tempx;
+							int diry = mouseY - tempy;
+
+							tempx = e.motion.x;
+							tempy = e.motion.y;
+
+							std::cout << "Pulso" << std::endl;
+
+							f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 100);
+							f.AddVelocity(mouseX / SCALE, mouseY / SCALE, dirx/SCALE, diry/ SCALE);
+						}
+
+
+
 						
 					}
-					break;*/
+					break;
 				
 				}
 			}	
