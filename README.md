@@ -26,5 +26,9 @@ Actually one of my main objectives was been capable of drawing the direction of 
 ## Video
 
 [Youtube link here](https://youtu.be/6671k-YdZzQ)  
+
+## TODO
+
+- [] Clean some code :)
            
 
