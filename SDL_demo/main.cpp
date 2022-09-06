@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <iostream>
 #include "Texture.cpp"
+#include <math.h>
 
 
 
@@ -25,7 +26,7 @@
 
 
 #define ITER 4
-#define SCALE 5
+#define SCALE 10
 #define N 128
 #define SIZE SCALE*N
 
@@ -87,11 +88,26 @@ public:
 		Vx0 = new float[N * N];
 		Vy0 = new float[N * N];
 
+		for (int i = 0; i < N * N; i++) {
+			s[i] =0;
+
+			density[i] = 0;
+
+
+			// Current and previus
+			Vx[i] = 0;
+			Vy[i] = 0;
+
+			Vx0[i] = 0;
+			Vy0[i] = 0;
+		}
+
+
 		
 	}
-
+	
 	void Simulate() {
-
+		
 		diffuse(1, Vx0, Vx, visc, dt);
 		diffuse(2, Vy0, Vy, visc, dt);
 		
@@ -106,14 +122,24 @@ public:
 		advect(0, density, s, Vx, Vy, dt);
 
 
+		// clear dye for first iteration
+		if (first) {
+			for (int i = 0; i < N * N; i++) {
+				s[i] = 0;
 
+				density[i] = 0;
+			}
+			first = false;
+		}
+
+		// El problema esta aquí
 		DisplaySimulation();
-	
+		fade();
 	}
 
 	// add some dye:
 	void AddIntensity(int x, int y, float amount) {
-		density[locateIndex(x, y)] += amount;
+		density[locateIndex(x, y)] = density[locateIndex(x, y)] + amount;
 	}
 
 	void DisplaySimulation() {
@@ -121,40 +147,60 @@ public:
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				float opacity = density[locateIndex(i, j)];
-				//if (opacity != 0) { std::cout << opacity << std::endl; }
+
+				SDL_Rect rect = { i * SCALE, j * SCALE, SCALE, SCALE };
+
+				// Set render color to blue ( rect will be rendered in this color )
+				SDL_SetRenderDrawColor(r, 255, 255, 255,(double)opacity);
+				SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+
+				SDL_RenderFillRect(r, &rect);
+
+				/*
 				
 				//SDL_SetRenderDrawColor(r, 255, 255,  255, opacity);
 				//SDL_RenderDrawPoint(r, i, j);	
 				
 
-				
+				// SOSPECHOSO
 				//SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 				//SDL_SetRenderDrawColor(r, 255, 255, 255, opacity);
 
 				//NO FUNCIONA POR ESTO!!!!
-				if (opacity > 255) { opacity = 255; }
-				if (opacity < 0) { opacity = 0; }
+				//if (opacity > 255) { opacity = 255; }
+				//if (opacity < 0) { opacity = 0; }
+				//if (opacity == 0) { std::cout << opacity << std::endl; }
 
-				SDL_SetRenderDrawColor(r, opacity, opacity, opacity, SDL_ALPHA_OPAQUE);
 
 				// create a black square
 				SDL_Rect rect = { i* SCALE, j* SCALE, SCALE, SCALE }; // x, y, width, height
+				SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+
+				
+				SDL_SetRenderDrawColor(r, 255, 255, 255, opacity);
+
+
 				//Uint32 color = SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00);
 				//SDL_FillRect(screenSurface, &rect, color);
 				SDL_RenderFillRect(r, &rect);
 				//SDL_RenderDrawRect(r, &rect);
 				//SDL_RenderPresent(r);
+
+				*/
 			}
 		}
+
+
+
 	}
 	void AddVelocity(int x, int y, float amountX, float amountY) {
 		int index = locateIndex(x, y);
-		Vx[index] += amountX;
-		Vy[index] += amountY;
+		Vx[index] = Vx[index]+ amountX;
+		Vy[index] += Vy[index]+ amountY;
 
 	}
 private:
-
+	bool first = true;
 	void Free_arr() {
 		delete[] s;
 		delete[] density;
@@ -165,8 +211,22 @@ private:
 	}
 
 
+	void fade() {
 
+		for (int i = 0; i < (N * N); i++) {
+			
+			if (density[i]>0) {
+				//density[i] = density[i] - density[i] / 10000;
+				density[i] = density[i] - 0.5;
+			}
 
+				
+			
+				
+		}
+	
+	
+	}
 
 	// This function literally will diffuse and give less tone to the dye
 	// Any vector x with their anterior state at x0
@@ -248,6 +308,7 @@ private:
 
 	void advect(int b, float* d, float* d0, float* velocX, float* velocY, float dt)
 	{
+		// Casted some values (Coding Train Clue)
 		float i0, i1, j0, j1;
 
 		float dtx = dt * (N - 2);
@@ -273,11 +334,11 @@ private:
 
 					if (x < 0.5f) x = 0.5f;
 					if (x > Nfloat + 0.5f) x = Nfloat + 0.5f;
-					i0 = floorf(x);
+					i0 = floor(x);
 					i1 = i0 + 1.0f;
 					if (y < 0.5f) y = 0.5f;
 					if (y > Nfloat + 0.5f) y = Nfloat + 0.5f;
-					j0 = floorf(y);
+					j0 = floor(y);
 					j1 = j0 + 1.0f;
 
 
@@ -287,10 +348,10 @@ private:
 					t0 = 1.0f - t1;
 
 
-					int i0i = i0;
-					int i1i = i1;
-					int j0i = j0;
-					int j1i = j1;
+					int i0i = (int)i0;
+					int i1i = (int)i1;
+					int j0i = (int)j0;
+					int j1i = (int)j1;
 
 
 					// Sx multiplica en global a las tx?
@@ -305,7 +366,7 @@ private:
 	void set_bnd(int b, float* x, int n)
 	{
 
-		
+			
 			for (int i = 1; i < N - 1; i++) {
 				x[locateIndex(i, 0)] = b == 2 ? -x[locateIndex(i, 1)] : x[locateIndex(i, 1)];
 				x[locateIndex(i, N - 1)] = b == 2 ? -x[locateIndex(i, N - 2)] : x[locateIndex(i, N - 2)];
@@ -317,20 +378,14 @@ private:
 			}
 	
 
-		x[locateIndex(0, 0)] = 0.5f * (x[locateIndex(1, 0)]
-			+ x[locateIndex(0, 1)]);
+		x[locateIndex(0, 0)] = 0.5f * (x[locateIndex(1, 0)]+ x[locateIndex(0, 1)]);
 
-		x[locateIndex(0, N - 1)] = 0.5f * (x[locateIndex(1, N - 1)]
-			+ x[locateIndex(0, N - 2)]
-			);
+		x[locateIndex(0, N - 1)] = 0.5f * (x[locateIndex(1, N - 1)] + x[locateIndex(0, N - 2)]);
 
 
-		x[locateIndex(N - 1, 0)] = 0.5f * (x[locateIndex(N - 2, 0)]
-			+ x[locateIndex(N - 1, 1)]
-			);
+		x[locateIndex(N - 1, 0)] = 0.5f * (x[locateIndex(N - 2, 0)] + x[locateIndex(N - 1, 1)]);
 
-		x[locateIndex(N - 1, N - 1)] = 0.5f * (x[locateIndex(N - 2, N - 1)]
-			+ x[locateIndex(N - 1, N - 2)]);
+		x[locateIndex(N - 1, N - 1)] = 0.5f * (x[locateIndex(N - 2, N - 1)] + x[locateIndex(N - 1, N - 2)]);
 
 	}
 
@@ -350,7 +405,7 @@ int main(int argc, char *argv[])
 		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	
 	
-	SDL_Renderer* r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED);
+	SDL_Renderer* r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	if (w && r) {
 		bool done = false;
@@ -361,38 +416,26 @@ int main(int argc, char *argv[])
 		//Texture t{ "assets/a.JPEG", r };
 
 		float  dt = 0.1;
-		float  diff = 0.2;
+		float  diff = 0.1;
 		float  visc = 0.1;
 
 		fluid f (dt,diff,visc,r);
 
+		bool first = false;
 
 		SDL_Event e;
-
+		//SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 		int tempx, tempy;
 		//SDL_SetRelativeMouseMode(SDL_TRUE);
 		while (!done) {
-
-			
-			SDL_SetRenderDrawColor(r, 0, 0, 0, SDL_ALPHA_OPAQUE); // Background Color
+			SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+			//SDL_SetRenderDrawColor(r, 0, 0, 0, SDL_ALPHA_OPAQUE); // Background Color
 			SDL_RenderClear(r);
 
 
 			f.Simulate();
 
-			//SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
-			//SDL_RenderDrawPoint(r, N/2, N/2);
 
-
-			//t.Display();
-			
-			//SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE);
-			/*SDL_RenderDrawLine(r, 320, 200, 300, 240);
-			SDL_RenderDrawLine(r, 300, 240, 340, 240);
-			SDL_RenderDrawLine(r, 340, 240, 320, 200);*/
-			SDL_RenderPresent(r);
-
-			
 			while (SDL_PollEvent(&e)) {
 				switch (e.type)
 				{
@@ -411,7 +454,6 @@ int main(int argc, char *argv[])
 						leftMouseButtonDown = true;
 					}
 					
-
 					break;
 				case SDL_MOUSEMOTION:
 					if (leftMouseButtonDown)
@@ -445,8 +487,9 @@ int main(int argc, char *argv[])
 
 							std::cout << "Pulso" << std::endl;
 
-							f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 100);
-							f.AddVelocity(mouseX / SCALE, mouseY / SCALE, dirx/SCALE, diry/ SCALE);
+							f.AddIntensity(mouseX / SCALE, mouseY / SCALE, 500);
+							std::cout << f.density[mouseX / SCALE + (mouseY / SCALE) * N] << std::endl;
+							f.AddVelocity(mouseX / SCALE, mouseY / SCALE, dirx, diry);
 						}
 
 
@@ -454,9 +497,11 @@ int main(int argc, char *argv[])
 						
 					}
 					break;
-				
 				}
-			}	
+			}
+
+			SDL_RenderPresent(r);
+
 		}
 
 		// Al terminar de ejecutar eliminaremos tanto el render como
