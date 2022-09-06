@@ -20,7 +20,7 @@ Actually one of my main objectives was been capable of drawing the direction of 
 
 ![demo1](https://user-images.githubusercontent.com/57955364/188677067-78ff4b7b-06f1-4331-9c56-8d866b4ac38a.PNG)
 
-## Video
+## Gif
 
-![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/demo_vid.mkv)             
+![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/vid_demog.gif)             
 
