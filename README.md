@@ -1,5 +1,7 @@
 # FluId_SDL
 
+![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/vid_demog.gif)  
+
 ##  Motivations
 This is a tiny project to start using c++ and graphic libraries. I have some back experience using WebGL and OpenGL but never used SDL2.
 
@@ -20,7 +22,9 @@ Actually one of my main objectives was been capable of drawing the direction of 
 
 ![demo1](https://user-images.githubusercontent.com/57955364/188677067-78ff4b7b-06f1-4331-9c56-8d866b4ac38a.PNG)
 
-## Gif
 
-![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/vid_demog.gif)             
+## Video
+
+[Youtube link here](https://youtu.be/6671k-YdZzQ)  
+           
 
