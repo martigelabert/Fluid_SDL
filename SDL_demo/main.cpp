@@ -217,15 +217,10 @@ private:
 			
 			if (density[i]>0) {
 				//density[i] = density[i] - density[i] / 10000;
-				density[i] = density[i] - 0.5;
+				density[i] = density[i] - density[i]/100;
 			}
-
-				
-			
-				
+	
 		}
-	
-	
 	}
 
 	// This function literally will diffuse and give less tone to the dye
@@ -417,7 +412,7 @@ int main(int argc, char *argv[])
 
 		float  dt = 0.1;
 		float  diff = 0.1;
-		float  visc = 0.1;
+		float  visc = 0.9;
 
 		fluid f (dt,diff,visc,r);
 
