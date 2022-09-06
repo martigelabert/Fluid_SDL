@@ -1,4 +1,4 @@
-# FluId_SDL
+# Fluid_SDL
 
 ![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/vid_demog.gif)  
 
