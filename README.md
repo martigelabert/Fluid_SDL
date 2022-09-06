@@ -22,5 +22,5 @@ Actually one of my main objectives was been capable of drawing the direction of 
 
 ## Video
 
-![demovid](https://user-images.githubusercontent.com)             
+![demovid](https://github.com/martigelabert/Fluid_SDL/blob/master/SDL_demo/images/demo_vid.mkv)             
 
