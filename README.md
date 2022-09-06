@@ -14,3 +14,13 @@ Some of the main subjects learned have been the Navier-Stokes equations that wit
 
 ## Future Plans
 Actually one of my main objectives was been capable of drawing the direction of the particles with colors or arrows, but probably is more wise to use some more realiable libraries as Lily Pad c++ implementations, nothing that could not be done in a nearly future.
+
+
+## Images
+
+![demo1](https://user-images.githubusercontent.com/57955364/188677067-78ff4b7b-06f1-4331-9c56-8d866b4ac38a.PNG)
+
+## Video
+
+![demovid](https://user-images.githubusercontent.com)             
+
