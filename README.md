@@ -27,8 +27,9 @@ Actually one of my main objectives was been capable of drawing the direction of 
 
 [Youtube link here](https://youtu.be/6671k-YdZzQ)  
 
-## TODO
+## TODOS
 
-- [] Clean some code :)
+- Clean some code
+- Add GUI (?)
            
 
